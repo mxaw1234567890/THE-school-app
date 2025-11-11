@@ -60,6 +60,7 @@ export default function AssignmentsPage() {
 
   const addAssignment = async () => {
     if (!formData.subject.trim() || !formData.title.trim() || !formData.due_date) {
+      console.error("[v0] Missing required fields")
       return
     }
 
@@ -71,6 +72,8 @@ export default function AssignmentsPage() {
 
       if (!user) return
 
+      const formattedDueDate = new Date(formData.due_date).toISOString()
+
       const { data, error } = await supabase
         .from("assignments")
         .insert({
@@ -78,7 +81,7 @@ export default function AssignmentsPage() {
           subject: formData.subject,
           title: formData.title,
           description: formData.description || null,
-          due_date: formData.due_date,
+          due_date: formattedDueDate,
           status: "pending",
         })
         .select()

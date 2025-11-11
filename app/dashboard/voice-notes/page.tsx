@@ -129,32 +129,43 @@ export default function VoiceNotesPage() {
           <p className="text-muted-foreground">No voice notes yet. Start recording to create one!</p>
         ) : (
           <div className="space-y-3">
-            {notes.map((note) => (
-              <Card key={note.id}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex-1">
-                      <p className="font-semibold">
-                        {note.timestamp.toLocaleDateString()} at {note.timestamp.toLocaleTimeString()}
-                      </p>
-                      <p className="text-sm text-muted-foreground">Duration: {formatTime(note.duration)}</p>
+            {notes.map((note) => {
+              const audioUrl = URL.createObjectURL(note.recording)
+              return (
+                <Card key={note.id}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex-1">
+                        <p className="font-semibold">
+                          {note.timestamp.toLocaleDateString()} at {note.timestamp.toLocaleTimeString()}
+                        </p>
+                        <p className="text-sm text-muted-foreground">Duration: {formatTime(note.duration)}</p>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => downloadNote(note)}>
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => deleteNote(note.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </div>
 
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => downloadNote(note)}>
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => deleteNote(note.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Audio player */}
-                  <audio src={URL.createObjectURL(note.recording)} controls className="w-full mt-4" />
-                </CardContent>
-              </Card>
-            ))}
+                    {/* Audio player */}
+                    <audio
+                      key={note.id}
+                      src={audioUrl}
+                      controls
+                      className="w-full mt-4"
+                      onEnded={() => {
+                        URL.revokeObjectURL(audioUrl)
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         )}
       </div>

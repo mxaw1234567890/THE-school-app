@@ -8,6 +8,10 @@ export async function POST(request: Request) {
       return Response.json({ error: "Prompt required" }, { status: 400 })
     }
 
+    if (!type) {
+      return Response.json({ error: "Type is required (study_guide, quiz, or summary)" }, { status: 400 })
+    }
+
     let systemPrompt = ""
     let customPrompt = prompt
 
@@ -26,7 +30,7 @@ export async function POST(request: Request) {
         customPrompt = `Summarize: ${prompt}`
         break
       default:
-        systemPrompt = "You are a helpful study assistant."
+        return Response.json({ error: "Invalid type. Use: study_guide, quiz, or summary" }, { status: 400 })
     }
 
     const { text } = await generateText({

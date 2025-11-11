@@ -48,8 +48,7 @@ export default function FlashcardsPage() {
 
       if (error) throw error
 
-      // Count cards in each deck
-      const decksWithCount = await Promise.all(
+      const decksWithCount = await Promise.allSettled(
         (data || []).map(async (deck) => {
           const { count } = await supabase
             .from("flashcards")
@@ -59,7 +58,13 @@ export default function FlashcardsPage() {
         }),
       )
 
-      setDecks(decksWithCount)
+      // Filter out rejected promises
+      const successfulDecks = decksWithCount
+        .filter((result) => result.status === "fulfilled")
+        .map((result) => (result.status === "fulfilled" ? result.value : null))
+        .filter((deck) => deck !== null)
+
+      setDecks(successfulDecks)
     } catch (error) {
       console.error("[v0] Error fetching decks:", error)
     } finally {
